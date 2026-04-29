@@ -116,7 +116,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
   const showPrimaryOptions: SelectorOption[] = [
     { label: '🇨🇳 国内', value: '国内' },
     { label: '🌏 国外', value: '国外' },
-    { label: '🌏 黑料', value: `色情' },
+    { label: '🌏 黑料', value: '色情' },
   ];
 
   // 二级：类型
