@@ -147,6 +147,9 @@
   { "name": "家庭", "type": "movie", "query": "家庭" },
   { "name": "同性", "type": "movie", "query": "同性" },
   { "name": "西部", "type": "movie", "query": "西部" },
+  { "name": "伦理片", "type": "movie", "query": "伦理片" }, 
+  { "name": "三级片", "type": "movie", "query": "三级片" },
+  
 
   { "name": "热门", "type": "tv", "query": "热门" },
   { "name": "美剧", "type": "tv", "query": "美剧" },
@@ -173,6 +176,10 @@
   { "name": "喜剧剧集", "type": "tv", "query": "喜剧" },
   { "name": "家庭剧", "type": "tv", "query": "家庭" },
   { "name": "年代剧", "type": "tv", "query": "年代" },
-  { "name": "短剧", "type": "tv", "query": "短剧" }
+  { "name": "短剧", "type": "tv", "query": "短剧" },
+  { "name": "伦理片", "type": "tv", "query": "伦理片" },
+  { "name": "三级片", "type": "tv", "query": "三级片" }
+  ]
+  ]
   ]
 }
