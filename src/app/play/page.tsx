@@ -509,32 +509,6 @@ function PlayPageClient() {
     }
   };
 
-  // 检查并应用预加载的m3u8内容
-  const getPreloadedM3U8 = (episodeIndex: number): string | null => {
-    const cacheKey = `episode_${episodeIndex}`;
-    const cached = preloadCacheRef.current.get(cacheKey);
-
-    if (cached) {
-      // 缓存有效期5分钟
-      if (Date.now() - cached.timestamp < 5 * 60 * 1000) {
-        return cached.m3u8Content;
-      } else {
-        preloadCacheRef.current.delete(cacheKey);
-      }
-    }
-    return null;
-  };
-
-  // 清理过期缓存
-  const cleanupCache = () => {
-    const now = Date.now();
-    preloadCacheRef.current.forEach((value, key) => {
-      if (now - value.timestamp > 10 * 60 * 1000) {
-        preloadCacheRef.current.delete(key);
-      }
-    });
-  };
-
   // 跳过片头片尾配置相关函数
   const handleSkipConfigChange = async (newConfig: {
     enable: boolean;
@@ -1366,9 +1340,6 @@ function PlayPageClient() {
 
               /* 分片加载优化 */
               startLevel: -1, // 自动选择最佳起始质量
-              maxLevel: -1, // 允许最高质量
-              minLevel: 0, // 允许最低质量
-              enableAutoQuality: true, // 启用自动质量切换
               autoLevelCapping: -1, // 不限制自动切换的最高质量
 
               /* 网络请求优化 */
