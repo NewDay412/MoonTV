@@ -17,6 +17,161 @@ interface DoubanSelectorProps {
   onSecondaryChange: (value: string) => void;
 }
 
+// 独立的胶囊选择器组件
+const CapsuleSelector: React.FC<{
+  options: SelectorOption[];
+  activeValue: string;
+  onChange: (value: string) => void;
+}> = ({ options, activeValue, onChange }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  const updateIndicatorPosition = (activeIndex: number) => {
+    if (activeIndex >= 0 && buttonRefs.current[activeIndex] && containerRef.current) {
+      const timeoutId = setTimeout(() => {
+        const button = buttonRefs.current[activeIndex];
+        const container = containerRef.current;
+        if (button && container) {
+          const buttonRect = button.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          if (buttonRect.width > 0) {
+            setIndicatorStyle({
+              left: buttonRect.left - containerRect.left,
+              width: buttonRect.width,
+            });
+          }
+        }
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+  };
+
+  useEffect(() => {
+    const activeIndex = options.findIndex((opt) => opt.value === activeValue);
+    updateIndicatorPosition(activeIndex);
+  }, [activeValue, options]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative inline-flex bg-gray-200/60 rounded-full p-0.5 sm:p-1 dark:bg-gray-700/60 backdrop-blur-sm"
+    >
+      {indicatorStyle.width > 0 && (
+        <div
+          className="absolute top-0.5 bottom-0.5 sm:top-1 sm:bottom-1 bg-white dark:bg-gray-500 rounded-full shadow-sm transition-all duration-300 ease-out"
+          style={{
+            left: `${indicatorStyle.left}px`,
+            width: `${indicatorStyle.width}px`,
+          }}
+        />
+      )}
+
+      <div className="flex gap-0.5 sm:gap-1 relative">
+        {options.map((option, index) => {
+          const isActive = activeValue === option.value;
+          return (
+            <button
+              key={option.value}
+              ref={(el) => {
+                buttonRefs.current[index] = el;
+              }}
+              onClick={() => onChange(option.value)}
+              className={`relative z-10 px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${
+                isActive
+                  ? 'text-gray-900 dark:text-gray-100 cursor-default'
+                  : 'text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer'
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// 分组选择器组件（用于电视剧的多行选择）
+const GroupedSelector: React.FC<{
+  title: string;
+  options: SelectorOption[];
+  activeValue: string;
+  onChange: (value: string) => void;
+}> = ({ title, options, activeValue, onChange }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  const updateIndicatorPosition = (activeIndex: number) => {
+    if (activeIndex >= 0 && buttonRefs.current[activeIndex] && containerRef.current) {
+      const timeoutId = setTimeout(() => {
+        const button = buttonRefs.current[activeIndex];
+        const container = containerRef.current;
+        if (button && container) {
+          const buttonRect = button.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          if (buttonRect.width > 0) {
+            setIndicatorStyle({
+              left: buttonRect.left - containerRect.left,
+              width: buttonRect.width,
+            });
+          }
+        }
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+  };
+
+  useEffect(() => {
+    const activeIndex = options.findIndex((opt) => opt.value === activeValue);
+    updateIndicatorPosition(activeIndex);
+  }, [activeValue, options]);
+
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+      <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]">
+        {title}
+      </span>
+      <div
+        ref={containerRef}
+        className="relative inline-flex bg-gray-200/60 rounded-full p-0.5 sm:p-1 dark:bg-gray-700/60 backdrop-blur-sm overflow-x-auto"
+      >
+        {indicatorStyle.width > 0 && (
+          <div
+            className="absolute top-0.5 bottom-0.5 sm:top-1 sm:bottom-1 bg-white dark:bg-gray-500 rounded-full shadow-sm transition-all duration-300 ease-out"
+            style={{
+              left: `${indicatorStyle.left}px`,
+              width: `${indicatorStyle.width}px`,
+            }}
+          />
+        )}
+        <div className="flex gap-0.5 sm:gap-1 relative">
+          {options.map((option, index) => {
+            const isActive = activeValue === option.value;
+            return (
+              <button
+                key={option.value}
+                ref={(el) => {
+                  buttonRefs.current[index] = el;
+                }}
+                onClick={() => onChange(option.value)}
+                className={`relative z-10 px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${
+                  isActive
+                    ? 'text-gray-900 dark:text-gray-100 cursor-default'
+                    : 'text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer'
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DoubanSelector: React.FC<DoubanSelectorProps> = ({
   type,
   primarySelection,
@@ -24,23 +179,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
   onPrimaryChange,
   onSecondaryChange,
 }) => {
-  // 为不同的选择器创建独立的refs和状态
-  const primaryContainerRef = useRef<HTMLDivElement>(null);
-  const primaryButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [primaryIndicatorStyle, setPrimaryIndicatorStyle] = useState<{
-    left: number;
-    width: number;
-  }>({ left: 0, width: 0 });
-
-  const secondaryContainerRef = useRef<HTMLDivElement>(null);
-  const secondaryButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [secondaryIndicatorStyle, setSecondaryIndicatorStyle] = useState<{
-    left: number;
-    width: number;
-  }>({ left: 0, width: 0 });
-
-  // ==================== 电影配置 ====================
-  // 一级选择器 - 综合/排序
+  // 电影的一级选择器选项
   const moviePrimaryOptions: SelectorOption[] = [
     { label: '🔥 热门', value: '热门' },
     { label: '🆕 最新', value: '最新' },
@@ -50,7 +189,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     { label: '🏆 获奖佳作', value: '获奖' },
   ];
 
-  // 二级选择器 - 地区/类型
+  // 电影的二级选择器选项
   const movieSecondaryOptions: SelectorOption[] = [
     { label: '🌍 全部', value: '全部' },
     { label: '🇨🇳 华语', value: '华语' },
@@ -78,8 +217,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     { label: '🤠 西部', value: '西部' },
   ];
 
-  // ==================== 电视剧配置 ====================
-  // 一级选择器 - 地区
+  // 电视剧一级选择器
   const tvPrimaryOptions: SelectorOption[] = [
     { label: '🌍 全部', value: '全部' },
     { label: '🇨🇳 国产剧', value: '国产剧' },
@@ -92,7 +230,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     { label: '🇹🇭 泰剧', value: '泰剧' },
   ];
 
-  // 二级选择器 - 题材/类型
+  // 电视剧二级选择器
   const tvSecondaryOptions: SelectorOption[] = [
     { label: '📺 全部', value: '全部' },
     { label: '👘 古装', value: '古装' },
@@ -108,7 +246,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     { label: '🎬 短剧', value: '短剧' },
   ];
 
-  // 三级选择器 - 特殊类型
+  // 电视剧三级选择器
   const tvTertiaryOptions: SelectorOption[] = [
     { label: '🇯🇵 日本动画', value: '日本动画' },
     { label: '🇨🇳 国产动画', value: '国产动画' },
@@ -118,14 +256,13 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     { label: '📹 纪录片', value: '纪录片' },
   ];
 
-  // ==================== 综艺配置 ====================
-  // 一级选择器 - 地区
+  // 综艺一级选择器
   const showPrimaryOptions: SelectorOption[] = [
     { label: '🇨🇳 国内', value: '国内' },
     { label: '🌏 国外', value: '国外' },
   ];
 
-  // 二级选择器 - 类型（根据一级选择器动态变化）
+  // 根据一级选项获取综艺二级选项
   const getShowSecondaryOptions = (primary: string): SelectorOption[] => {
     if (primary === '国内') {
       return [
@@ -156,7 +293,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     }
   };
 
-  // 解析综艺的复合选中值（格式：primary|secondary）
+  // 解析综艺选中值
   const parseShowSelection = (selection?: string): { primary: string; secondary: string } => {
     if (!selection) return { primary: '国内', secondary: '音乐综艺' };
     const parts = selection.split('|');
@@ -172,181 +309,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
 
   const showSelection = parseShowSelection(secondarySelection);
 
-  // ==================== 辅助函数 ====================
-  const updateIndicatorPosition = (
-    activeIndex: number,
-    containerRef: React.RefObject<HTMLDivElement>,
-    buttonRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>,
-    setIndicatorStyle: React.Dispatch<
-      React.SetStateAction<{ left: number; width: number }>
-    >
-  ) => {
-    if (
-      activeIndex >= 0 &&
-      buttonRefs.current[activeIndex] &&
-      containerRef.current
-    ) {
-      const timeoutId = setTimeout(() => {
-        const button = buttonRefs.current[activeIndex];
-        const container = containerRef.current;
-        if (button && container) {
-          const buttonRect = button.getBoundingClientRect();
-          const containerRect = container.getBoundingClientRect();
-
-          if (buttonRect.width > 0) {
-            setIndicatorStyle({
-              left: buttonRect.left - containerRect.left,
-              width: buttonRect.width,
-            });
-          }
-        }
-      }, 0);
-      return () => clearTimeout(timeoutId);
-    }
-  };
-
-  // 渲染胶囊式选择器
-  const renderCapsuleSelector = (
-    options: SelectorOption[],
-    activeValue: string | undefined,
-    onChange: (value: string) => void,
-    isPrimary = false
-  ) => {
-    const containerRef = isPrimary ? primaryContainerRef : secondaryContainerRef;
-    const buttonRefs = isPrimary ? primaryButtonRefs : secondaryButtonRefs;
-    const indicatorStyle = isPrimary ? primaryIndicatorStyle : secondaryIndicatorStyle;
-
-    // 更新指示器位置
-    const activeIndex = options.findIndex((opt) => opt.value === activeValue);
-    useEffect(() => {
-      const cleanup = updateIndicatorPosition(
-        activeIndex,
-        containerRef,
-        buttonRefs,
-        setIndicatorStyle as any
-      );
-      return cleanup;
-    }, [activeValue, activeIndex]);
-
-    return (
-      <div
-        ref={containerRef}
-        className='relative inline-flex bg-gray-200/60 rounded-full p-0.5 sm:p-1 dark:bg-gray-700/60 backdrop-blur-sm'
-      >
-        {indicatorStyle.width > 0 && (
-          <div
-            className='absolute top-0.5 bottom-0.5 sm:top-1 sm:bottom-1 bg-white dark:bg-gray-500 rounded-full shadow-sm transition-all duration-300 ease-out'
-            style={{
-              left: `${indicatorStyle.left}px`,
-              width: `${indicatorStyle.width}px`,
-            }}
-          />
-        )}
-
-        <div className='flex gap-0.5 sm:gap-1 relative'>
-          {options.map((option, index) => {
-            const isActive = activeValue === option.value;
-            return (
-              <button
-                key={option.value}
-                ref={(el) => {
-                  buttonRefs.current[index] = el;
-                }}
-                onClick={() => onChange(option.value)}
-                className={`relative z-10 px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${
-                  isActive
-                    ? 'text-gray-900 dark:text-gray-100 cursor-default'
-                    : 'text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer'
-                }`}
-              >
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  // 渲染分组选择器（用于电视剧的多个选择行）
-  const renderGroupedSelector = (
-    title: string,
-    options: SelectorOption[],
-    activeValue: string | undefined,
-    onChange: (value: string) => void,
-    groupKey: string
-  ) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
-    const [indicatorStyle, setIndicatorStyle] = useState<{
-      left: number;
-      width: number;
-    }>({ left: 0, width: 0 });
-
-    const activeIndex = options.findIndex((opt) => opt.value === activeValue);
-
-    useEffect(() => {
-      if (activeIndex >= 0 && buttonRefs.current[activeIndex] && containerRef.current) {
-        const timeoutId = setTimeout(() => {
-          const button = buttonRefs.current[activeIndex];
-          const container = containerRef.current;
-          if (button && container) {
-            const buttonRect = button.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
-            if (buttonRect.width > 0) {
-              setIndicatorStyle({
-                left: buttonRect.left - containerRect.left,
-                width: buttonRect.width,
-              });
-            }
-          }
-        }, 0);
-        return () => clearTimeout(timeoutId);
-      }
-    }, [activeValue, activeIndex]);
-
-    return (
-      <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
-        <span className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]'>
-          {title}
-        </span>
-        <div ref={containerRef} className='relative inline-flex bg-gray-200/60 rounded-full p-0.5 sm:p-1 dark:bg-gray-700/60 backdrop-blur-sm overflow-x-auto'>
-          {indicatorStyle.width > 0 && (
-            <div
-              className='absolute top-0.5 bottom-0.5 sm:top-1 sm:bottom-1 bg-white dark:bg-gray-500 rounded-full shadow-sm transition-all duration-300 ease-out'
-              style={{
-                left: `${indicatorStyle.left}px`,
-                width: `${indicatorStyle.width}px`,
-              }}
-            />
-          )}
-          <div className='flex gap-0.5 sm:gap-1 relative'>
-            {options.map((option, index) => {
-              const isActive = activeValue === option.value;
-              return (
-                <button
-                  key={`${groupKey}-${option.value}`}
-                  ref={(el) => {
-                    buttonRefs.current[index] = el;
-                  }}
-                  onClick={() => onChange(option.value)}
-                  className={`relative z-10 px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${
-                    isActive
-                      ? 'text-gray-900 dark:text-gray-100 cursor-default'
-                      : 'text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ==================== 电视剧状态解析 ====================
+  // 解析电视剧选中值
   const parseTvSelection = (selection?: string): { primary: string; secondary: string; tertiary: string } => {
     if (!selection) return { primary: '全部', secondary: '全部', tertiary: '' };
     const parts = selection.split('|');
@@ -380,9 +343,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     onSecondaryChange(newValue);
   };
 
-  // ==================== 综艺事件处理 ====================
   const handleShowPrimaryChange = (value: string) => {
-    // 切换地区时，二级选项重置为该地区的默认选项
     const newSecondary = getShowSecondaryOptions(value)[0]?.value || '';
     const newValue = buildShowSelection(value, newSecondary);
     onSecondaryChange(newValue);
@@ -393,141 +354,89 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     onSecondaryChange(newValue);
   };
 
-  // ==================== 电影效果监听 ====================
-  useEffect(() => {
-    if (type === 'movie' && primaryContainerRef.current) {
-      const activeIndex = moviePrimaryOptions.findIndex(
-        (opt) => opt.value === (primarySelection || moviePrimaryOptions[0].value)
-      );
-      updateIndicatorPosition(
-        activeIndex,
-        primaryContainerRef,
-        primaryButtonRefs,
-        setPrimaryIndicatorStyle
-      );
-    }
-  }, [type]);
-
-  useEffect(() => {
-    if (type === 'movie') {
-      const activeIndex = moviePrimaryOptions.findIndex(
-        (opt) => opt.value === primarySelection
-      );
-      updateIndicatorPosition(
-        activeIndex,
-        primaryContainerRef,
-        primaryButtonRefs,
-        setPrimaryIndicatorStyle
-      );
-    }
-  }, [primarySelection, type]);
-
-  useEffect(() => {
-    if (type === 'movie') {
-      const activeIndex = movieSecondaryOptions.findIndex(
-        (opt) => opt.value === secondarySelection
-      );
-      updateIndicatorPosition(
-        activeIndex,
-        secondaryContainerRef,
-        secondaryButtonRefs,
-        setSecondaryIndicatorStyle
-      );
-    }
-  }, [secondarySelection, type]);
-
   return (
-    <div className='space-y-4 sm:space-y-6'>
-      {/* ==================== 电影类型 ==================== */}
+    <div className="space-y-4 sm:space-y-6">
+      {/* 电影类型 */}
       {type === 'movie' && (
-        <div className='space-y-3 sm:space-y-4'>
-          <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
-            <span className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]'>
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]">
               分类
             </span>
-            <div className='overflow-x-auto'>
-              {renderCapsuleSelector(
-                moviePrimaryOptions,
-                primarySelection || moviePrimaryOptions[0].value,
-                onPrimaryChange,
-                true
-              )}
+            <div className="overflow-x-auto">
+              <CapsuleSelector
+                options={moviePrimaryOptions}
+                activeValue={primarySelection || moviePrimaryOptions[0].value}
+                onChange={onPrimaryChange}
+              />
             </div>
           </div>
 
-          <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
-            <span className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]'>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]">
               筛选
             </span>
-            <div className='overflow-x-auto'>
-              {renderCapsuleSelector(
-                movieSecondaryOptions,
-                secondarySelection || movieSecondaryOptions[0].value,
-                onSecondaryChange,
-                false
-              )}
+            <div className="overflow-x-auto">
+              <CapsuleSelector
+                options={movieSecondaryOptions}
+                activeValue={secondarySelection || movieSecondaryOptions[0].value}
+                onChange={onSecondaryChange}
+              />
             </div>
           </div>
         </div>
       )}
 
-      {/* ==================== 电视剧类型 ==================== */}
+      {/* 电视剧类型 */}
       {type === 'tv' && (
-        <div className='space-y-3 sm:space-y-4'>
-          {renderGroupedSelector(
-            '地区',
-            tvPrimaryOptions,
-            tvSelection.primary,
-            handleTvPrimaryChange,
-            'tv-primary'
-          )}
-          {renderGroupedSelector(
-            '题材',
-            tvSecondaryOptions,
-            tvSelection.secondary,
-            handleTvSecondaryChange,
-            'tv-secondary'
-          )}
-          {renderGroupedSelector(
-            '类型',
-            tvTertiaryOptions,
-            tvSelection.tertiary,
-            handleTvTertiaryChange,
-            'tv-tertiary'
-          )}
+        <div className="space-y-3 sm:space-y-4">
+          <GroupedSelector
+            title="地区"
+            options={tvPrimaryOptions}
+            activeValue={tvSelection.primary}
+            onChange={handleTvPrimaryChange}
+          />
+          <GroupedSelector
+            title="题材"
+            options={tvSecondaryOptions}
+            activeValue={tvSelection.secondary}
+            onChange={handleTvSecondaryChange}
+          />
+          <GroupedSelector
+            title="类型"
+            options={tvTertiaryOptions}
+            activeValue={tvSelection.tertiary}
+            onChange={handleTvTertiaryChange}
+          />
         </div>
       )}
 
-      {/* ==================== 综艺类型 ==================== */}
+      {/* 综艺类型 */}
       {type === 'show' && (
-        <div className='space-y-3 sm:space-y-4'>
-          {/* 一级选择器 - 国内/国外 */}
-          <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
-            <span className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]'>
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]">
               地区
             </span>
-            <div className='overflow-x-auto'>
-              {renderCapsuleSelector(
-                showPrimaryOptions,
-                showSelection.primary,
-                handleShowPrimaryChange,
-                true
-              )}
+            <div className="overflow-x-auto">
+              <CapsuleSelector
+                options={showPrimaryOptions}
+                activeValue={showSelection.primary}
+                onChange={handleShowPrimaryChange}
+              />
             </div>
           </div>
 
-          {/* 二级选择器 - 细分类型（根据一级动态变化） */}
-          <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
-            <span className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]'>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]">
               类型
             </span>
-            <div className='overflow-x-auto'>
-              {renderCapsuleSelector(
-                getShowSecondaryOptions(showSelection.primary),
-                showSelection.secondary,
-                handleShowSecondaryChange,
-                false
-              )}
+            <div className="overflow-x-auto">
+              <CapsuleSelector
+                options={getShowSecondaryOptions(showSelection.primary)}
+                activeValue={showSelection.secondary}
+                onChange={handleShowSecondaryChange}
+              />
             </div>
           </div>
         </div>
