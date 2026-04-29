@@ -118,7 +118,7 @@
       "name":"速播资源"
     },
     "heiliao":{
-      "api":"https://heiliaozyapi.com/api.php/provide/vod/from/hlm3u8",
+      "api":"https://heiliaozyapi.com/api.php/provide/vod/",
       "name":"黑料资源"
     }
   },
