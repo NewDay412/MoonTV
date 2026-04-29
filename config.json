@@ -104,6 +104,18 @@
     "haohua":{
       "api":"https://hhzyapi.com/api.php/provide/vod/from/hhm3u8/",
       "name":"豪华资源"
+    },
+    "guansu":{
+      "api":"https://api.guangsuapi.com/api.php/provide/vod/from/gsm3u8/",
+      "name":"光速资源"
+    },
+    "aiqiyi":{
+      "api":"https://www.iqiyizyapi.com/api.php/provide/vod/?ac=list",
+      "name":"爱奇艺资源"
+    },
+    "subo":{
+      "api":"https://subocj.com/api.php/provide/vod/from/subm3u8",
+      "name":"速播资源"
     }
   }
 }
