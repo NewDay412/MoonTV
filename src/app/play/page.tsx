@@ -343,7 +343,7 @@ function PlayPageClient() {
     // 分辨率评分 (40% 权重)
     const qualityScore = (() => {
       switch (testResult.quality) {
-        case '2160p＇:
+        case '2160p':
           return 100;
         case '1440p':
           return 85;
