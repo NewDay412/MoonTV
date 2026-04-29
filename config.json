@@ -85,8 +85,8 @@
       "api": "https://zy.xmm.hk/api.php/provide/vod/from/xmm3u8/",
       "name": "小猫咪资源"
     },
-    "maotai": {
-      "api": "https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/",
+    "maotai2": {
+      "api": "https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/at/xml/",
       "name": "茅台资源2"
     },
     "huya": {
