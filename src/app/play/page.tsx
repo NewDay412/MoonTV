@@ -1984,3 +1984,4 @@ export default function PlayPage() {
       <PlayPageClient />
     </Suspense>
   );
+}
