@@ -86,8 +86,11 @@
       "name": "小猫咪资源"
     }
     "maotai":{
-    "api":"https://caiji.maotaizy.cc/api.php/provide/vod"
+      "api":"https://caiji.maotaizy.cc/api.php/provide/vod"
       "name":"茅台资源"
+    "huya":{
+      "api":"https://www.huyaapi.com/api.php/provide/vod/at/json"
+      "name":"虎牙资源"
     }
   }
 }
