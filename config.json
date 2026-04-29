@@ -116,6 +116,10 @@
     "subo":{
       "api":"https://subocj.com/api.php/provide/vod/from/subm3u8",
       "name":"速播资源"
+    },
+    "heiliao":{
+      "api":"https://heiliaozyapi.com/api.php/provide/vod/from/hlm3u8",
+      "name":"黑料资源"
     }
   },
   "custom_category": [
